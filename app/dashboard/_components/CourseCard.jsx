@@ -125,7 +125,7 @@ function CourseCard({ course, refreshData, displayUser = false }) {
 
     return (
         <>
-            <div style={{ margin: '50px' }} >
+            <div className="w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
