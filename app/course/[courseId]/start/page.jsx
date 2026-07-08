@@ -1,14 +1,16 @@
 "use client"
 import { supabase } from '@/configs/supabase'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import ChapterListCard from './_components/ChapterListCard'
 import ChapterContent from './_components/ChapterContent'
 import QuizModal from './_components/QuizModal'
-import { HiOutlineBookOpen, HiOutlineAcademicCap } from "react-icons/hi2"
+import { HiOutlineBookOpen, HiOutlineAcademicCap, HiOutlineHome, HiOutlineArrowLeft } from "react-icons/hi2"
 
 function CourseStart() {
   const params = useParams();
+  const router = useRouter();
   const courseId = params?.courseId;
   const [course, setCourse] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(null);
@@ -80,6 +82,23 @@ function CourseStart() {
     <div>
       {/* Sidebar */}
       <div className='fixed md:w-72 hidden md:flex md:flex-col h-screen border-r shadow-sm bg-white dark:bg-gray-900 z-10'>
+        {/* Navigation */}
+        <div className='shrink-0 flex items-center gap-1 px-3 py-2 border-b bg-gray-50 dark:bg-gray-800'>
+          <button
+            onClick={() => router.back()}
+            className='p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors'
+            title='Go back'
+          >
+            <HiOutlineArrowLeft className='text-lg text-gray-600 dark:text-gray-300' />
+          </button>
+          <Link
+            href='/dashboard'
+            className='p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors'
+            title='Go to dashboard'
+          >
+            <HiOutlineHome className='text-lg text-gray-600 dark:text-gray-300' />
+          </Link>
+        </div>
         {/* Course Title */}
         <div className='shrink-0 bg-primary p-4'>
           <h2 className='font-medium text-lg text-white leading-tight'>
@@ -139,8 +158,17 @@ function CourseStart() {
 
       {/* Mobile Header */}
       <div className='md:hidden sticky top-0 z-10 bg-white dark:bg-gray-900 border-b shadow-sm'>
-        <div className='bg-primary px-4 py-2'>
-          <h2 className='font-medium text-sm text-white truncate'>
+        <div className='bg-primary px-4 py-2 flex items-center gap-2'>
+          <button
+            onClick={() => router.back()}
+            className='p-1 hover:bg-white/20 rounded transition-colors'
+          >
+            <HiOutlineArrowLeft className='text-lg text-white' />
+          </button>
+          <Link href='/dashboard' className='p-1 hover:bg-white/20 rounded transition-colors'>
+            <HiOutlineHome className='text-lg text-white' />
+          </Link>
+          <h2 className='font-medium text-sm text-white truncate flex-1'>
             {course?.courseOutput?.course?.name}
           </h2>
         </div>
