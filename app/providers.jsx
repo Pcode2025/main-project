@@ -1,36 +1,20 @@
-// app/providers.jsx
 'use client'
 
 import { ThemeProvider } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { AuthProvider } from './_context/AuthContext'
+import { UserCourseListContext } from './_context/UserCourseListContext'
+import { useState } from 'react'
 
 export function Providers({ children }) {
-  const [mounted, setMounted] = useState(false)
-  
-  // Ensure component is mounted to prevent hydration errors
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  
-  // Prevent rendering theme-specific components during server-side rendering
-  if (!mounted) {
-    return <>{children}</>
-  }
-  
+  const [userCourseList, setUserCourseList] = useState([]);
+
   return (
-    <ThemeProvider 
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-      themes={['light', 'dark', 'system']}
-      value={{
-        light: 'light',
-        dark: 'dark',
-        system: 'system',
-      }}
-    >
-      {children}
-    </ThemeProvider>
+    <AuthProvider>
+      <UserCourseListContext.Provider value={{ userCourseList, setUserCourseList }}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
+      </UserCourseListContext.Provider>
+    </AuthProvider>
   )
 }
