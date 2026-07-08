@@ -23,7 +23,7 @@ function CreateCourse() {
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const { user } = useAuth();
-  const router = useRouter();
+  const [error, setError] = useState('');
 
   useEffect(() => {
     console.log(userCourseInput);
@@ -39,17 +39,26 @@ function CreateCourse() {
 
   const GenerateCourseLayout = async () => {
     setLoading(true)
-    const BASIC_PROMPT = 'Generate A Course Tutorial on Following Detail With field as Course Name, Description, Along with Chapter Name, about, Duration: '
-    const USER_INPUT_PROMPT = 'Category: ' + userCourseInput?.category + ', Topic: ' + userCourseInput?.topic + ', Level:' + userCourseInput?.level + ', Duration:' + userCourseInput?.duration + ', NoOf Chapters:' + userCourseInput?.noOfChapter + ' , in JSON format'
-    const FINAL_PROMPT = BASIC_PROMPT + USER_INPUT_PROMPT;
-    const result = await GenerateCourseLayout_AI.sendMessage(FINAL_PROMPT);
-    setLoading(false);
-    SaveCourseLayoutInDb(JSON.parse(result.response?.text()));
+    setError('')
+    try {
+      const BASIC_PROMPT = 'Generate A Course Tutorial on Following Detail With field as Course Name, Description, Along with Chapter Name, about, Duration: '
+      const USER_INPUT_PROMPT = 'Category: ' + userCourseInput?.category + ', Topic: ' + userCourseInput?.topic + ', Level:' + userCourseInput?.level + ', Duration:' + userCourseInput?.duration + ', NoOf Chapters:' + userCourseInput?.noOfChapter + ' , in JSON format'
+      const FINAL_PROMPT = BASIC_PROMPT + USER_INPUT_PROMPT;
+      const result = await GenerateCourseLayout_AI.sendMessage(FINAL_PROMPT);
+      const text = result.response?.text();
+      if (!text) throw new Error('Empty response from AI');
+      const courseLayout = JSON.parse(text);
+      await SaveCourseLayoutInDb(courseLayout);
+    } catch (e) {
+      console.error('Course generation error:', e);
+      setError('Failed to generate course: ' + (e.message || 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   const SaveCourseLayoutInDb = async (courseLayout) => {
     const id = uuid4();
-    setLoading(true)
     const { error } = await supabase.from('courseList').insert({
       courseId: id,
       name: userCourseInput?.topic,
@@ -62,10 +71,8 @@ function CreateCourse() {
       user_id: user?.id
     });
 
-    setLoading(false);
-    if (!error) {
-      router.replace('/create-course/' + id)
-    }
+    if (error) throw new Error('Failed to save course: ' + error.message);
+    router.replace('/create-course/' + id);
   }
 
   return (
@@ -90,6 +97,11 @@ function CreateCourse() {
 
       <div className='px-10 md:px-20 lg:px-44 mt-10'>
         {activeIndex == 0 ? <SelectCategory /> : activeIndex == 1 ? <TopicDescription /> : <SelectOption />}
+        {error && (
+          <div className="mt-4 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <div className='flex justify-between mt-10'>
           <Button disabled={activeIndex == 0} variant='outline' onClick={() => setActiveIndex(activeIndex - 1)}>Previous</Button>
           {activeIndex < 2 && <Button disabled={checkStatus()} onClick={() => setActiveIndex(activeIndex + 1)}>Next</Button>}

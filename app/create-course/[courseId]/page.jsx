@@ -14,8 +14,7 @@ import { useRouter } from 'next/navigation'
 function CourseLayout({ params }) {
   const { user } = useAuth();
   const [course, setCourse] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (params) GetCourse();
@@ -34,38 +33,58 @@ function CourseLayout({ params }) {
 
   const GenerateChapterContent = async () => {
     setLoading(true);
+    setError('');
     const chapters = course?.courseOutput?.course?.chapters;
-    for (let index = 0; index < chapters.length; index++) {
-      const chapter = chapters[index];
-      const PROMPT = 'Explain the concept in Detail on Topic:' + course?.name + ', Chapter:' + chapter?.name + ', in JSON Format with list of array with field as title, description in detail, Code Example(Code field in <precode> format) if applicable';
-      try {
+    if (!chapters?.length) {
+      setError('No chapters found in course.');
+      setLoading(false);
+      return;
+    }
+    try {
+      for (let index = 0; index < chapters.length; index++) {
+        const chapter = chapters[index];
+        const PROMPT = 'Explain the concept in Detail on Topic:' + course?.name + ', Chapter:' + chapter?.name + ', in JSON Format with list of array with field as title, description in detail, Code Example(Code field in <precode> format) if applicable';
         let videoId = '';
-        const videos = await service.getVideos(course?.name + ':' + chapter?.name);
-        videoId = videos[0]?.id?.videoId || '';
+        try {
+          const videos = await service.getVideos(course?.name + ':' + chapter?.name);
+          videoId = videos[0]?.id?.videoId || '';
+        } catch (videoErr) {
+          console.warn('Video fetch failed for chapter', index, videoErr);
+        }
 
         const result = await GenerateChapterContent_AI.sendMessage(PROMPT);
-        const content = JSON.parse(result?.response?.text());
+        const text = result?.response?.text();
+        if (!text) throw new Error('Empty AI response for chapter ' + chapter?.name);
+        const content = JSON.parse(text);
 
-        await supabase.from('chapters').insert({
+        const { error: insertError } = await supabase.from('chapters').insert({
           chapterId: index,
           courseId: course?.courseId,
           content: content,
           videoId: videoId
         });
-      } catch (e) {
-        console.log(e);
+        if (insertError) throw new Error('Failed to save chapter: ' + insertError.message);
       }
-    }
 
-    await supabase.from('courseList').update({ publish: true }).eq('courseId', course?.courseId);
-    setLoading(false);
-    router.replace('/create-course/' + course?.courseId + '/finish');
+      await supabase.from('courseList').update({ publish: true }).eq('courseId', course?.courseId);
+      router.replace('/create-course/' + course?.courseId + '/finish');
+    } catch (e) {
+      console.error('Chapter generation error:', e);
+      setError('Error generating content: ' + (e.message || 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className='mt-10 px-7 md:px-20 lg:px-44'>
       <h2 className='font-bold text-center text-2xl'>Course Layout</h2>
       <LoadingDialog loading={loading} />
+      {error && (
+        <div className="mt-4 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <CourseBasicInfo course={course} refreshData={() => GetCourse()} />
       <CourseDetail course={course} />
       <ChapterList course={course} refreshData={() => GetCourse()} />
