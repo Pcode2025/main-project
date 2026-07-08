@@ -62,7 +62,8 @@ function CourseLayoutPage() {
 
         let videoId = '';
         try {
-          const videos = await service.getVideos(course?.name + ':' + chapter?.name);
+          const query = chapter?.name + ' ' + course?.name + ' tutorial';
+          const videos = await service.getVideos(query);
           videoId = videos?.[0]?.id?.videoId || '';
         } catch (videoErr) {
           console.warn('Video fetch failed for chapter', index, videoErr);
