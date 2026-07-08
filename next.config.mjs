@@ -1,10 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['firebasestorage.googleapis.com', 'img.clerk.com', 'res.cloudinary.com']
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '*.supabase.co',
+                pathname: '/storage/v1/object/public/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com',
+            },
+        ],
     },
     webpack: (config, { isServer }) => {
-        // Fix for EINVAL error on Windows
         config.resolve.symlinks = false;
         return config;
     }

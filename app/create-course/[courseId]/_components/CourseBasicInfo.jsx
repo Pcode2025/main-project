@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button';
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-import { HiOutlinePuzzle } from "react-icons/hi";
 import { HiOutlineRectangleStack } from "react-icons/hi2";
 import EditCourseBasicInfo from './EditCourseBasicInfo';
 import { supabase } from '@/configs/supabase';
@@ -10,6 +8,7 @@ import Link from 'next/link';
 function CourseBasicInfo({ course, refreshData, edit = true }) {
   const [selectedFile, setSelectedFile] = useState();
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     if (course) {
@@ -22,10 +21,11 @@ function CourseBasicInfo({ course, refreshData, edit = true }) {
       const file = event.target.files[0];
       if (!file) return;
 
+      setUploadError('');
       setSelectedFile(URL.createObjectURL(file));
       setUploading(true);
 
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split('.').pop().toLowerCase();
       const filePath = `banner-${course?.courseId}-${Date.now()}.${fileExt}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -38,16 +38,19 @@ function CourseBasicInfo({ course, refreshData, edit = true }) {
         .from('course-banners')
         .getPublicUrl(uploadData.path);
 
-      await supabase
+      const { error: dbError } = await supabase
         .from('courseList')
         .update({ courseBanner: publicUrl })
         .eq('id', course?.id);
+
+      if (dbError) throw dbError;
 
       setSelectedFile(publicUrl);
       if (refreshData) refreshData(true);
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert(`Failed to upload image: ${error.message}`);
+      setUploadError(error.message || 'Upload failed');
+      setSelectedFile(course?.courseBanner || null);
     } finally {
       setUploading(false);
     }
@@ -71,16 +74,22 @@ function CourseBasicInfo({ course, refreshData, edit = true }) {
         <div>
           <label htmlFor='upload-image'>
             <div className="relative">
-              <Image
-                src={selectedFile ? selectedFile : '/placeholder.png'}
-                width={300}
-                height={300}
+              {/* Plain img tag handles both blob: preview URLs and Supabase storage URLs */}
+              <img
+                src={selectedFile || '/placeholder.png'}
                 className='w-full rounded-xl h-[250px] object-cover cursor-pointer'
                 alt="Course banner"
               />
               {uploading && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
-                  <div className="text-white">Uploading...</div>
+                  <div className="text-white font-medium">Uploading...</div>
+                </div>
+              )}
+              {!uploading && edit && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-xl opacity-0 hover:opacity-100 bg-black/30 transition-opacity duration-200">
+                  <div className="bg-white/90 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-lg">
+                    Click to change image
+                  </div>
                 </div>
               )}
             </div>
