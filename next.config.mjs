@@ -4,6 +4,11 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
+                hostname: 'glpbzfjkiszxthtpdyzx.supabase.co',
+                pathname: '/storage/v1/object/public/**',
+            },
+            {
+                protocol: 'https',
                 hostname: '*.supabase.co',
                 pathname: '/storage/v1/object/public/**',
             },
@@ -21,7 +26,7 @@ const nextConfig = {
             },
         ],
     },
-    webpack: (config, { isServer }) => {
+    webpack: (config) => {
         config.resolve.symlinks = false;
         return config;
     }
