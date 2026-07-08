@@ -15,6 +15,25 @@ import { supabase } from '@/configs/supabase';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+const DEFAULT_BANNERS = [
+  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800',
+];
+
+function getDefaultBanner(courseId) {
+  if (!courseId) return DEFAULT_BANNERS[0];
+  let hash = 0;
+  for (let i = 0; i < courseId.length; i++) {
+    hash = ((hash << 5) - hash) + courseId.charCodeAt(i);
+    hash |= 0;
+  }
+  return DEFAULT_BANNERS[Math.abs(hash) % DEFAULT_BANNERS.length];
+}
+
 function CourseCard({ course, refreshData, displayUser = false }) {
     const [isHovered, setIsHovered] = useState(false);
     const [rating, setRating] = useState(0);
@@ -164,11 +183,19 @@ function CourseCard({ course, refreshData, displayUser = false }) {
                                     />
                                 </motion.div>
                             ) : (
-                                <div className={`w-full h-full flex items-center justify-center ${categoryColor}`}>
-                                    <span className="text-white text-2xl sm:text-3xl md:text-4xl font-bold">
-                                        {getInitials(course?.courseOutput?.course?.name)}
-                                    </span>
-                                </div>
+                                <motion.div
+                                    animate={{
+                                        scale: isHovered ? 1.05 : 1
+                                    }}
+                                    transition={{ duration: 0.4 }}
+                                    className="h-full w-full"
+                                >
+                                    <img
+                                        src={getDefaultBanner(course?.courseId)}
+                                        alt={course?.courseOutput?.course?.name || "Course banner"}
+                                        className='object-cover w-full h-full'
+                                    />
+                                </motion.div>
                             )}
 
                             {/* Category Tag */}

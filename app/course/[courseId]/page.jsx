@@ -6,7 +6,7 @@ import { supabase } from '@/configs/supabase'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { HiOutlineHome, HiOutlineArrowLeft, HiOutlineBookOpen } from "react-icons/hi2"
+import { HiOutlineHome, HiOutlineArrowLeft, HiOutlineBookOpen, HiOutlineShare, HiOutlineClipboardDocumentCheck, HiOutlineCheck } from "react-icons/hi2"
 
 function Course() {
   const params = useParams();
@@ -14,6 +14,7 @@ function Course() {
   const courseId = params?.courseId;
   const [course, setCourse] = useState(null);
   const [completedChapters, setCompletedChapters] = useState(new Set());
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (courseId) GetCourse();
@@ -41,6 +42,26 @@ function Course() {
   const totalChapters = course?.courseOutput?.course?.chapters?.length || 0;
   const progressPercent = totalChapters > 0 ? Math.round((completedChapters.size / totalChapters) * 100) : 0;
 
+  const courseUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(courseUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  const shareNative = async () => {
+    if (navigator.share) {
+      await navigator.share({
+        title: course?.courseOutput?.course?.name || 'Course',
+        text: `Check out this course: ${course?.courseOutput?.course?.name}`,
+        url: courseUrl,
+      });
+    } else {
+      copyLink();
+    }
+  }
+
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-950'>
       {/* Top Navigation Bar */}
@@ -62,12 +83,28 @@ function Course() {
               <HiOutlineHome className='text-xl text-gray-600 dark:text-gray-300' />
             </Link>
           </div>
-          <Link
-            href={`/course/${courseId}/start`}
-            className='px-5 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity'
-          >
-            Start Learning
-          </Link>
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={copyLink}
+              className={`p-2 rounded-lg transition-colors ${copied ? 'bg-green-100 text-green-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+              title={copied ? 'Copied!' : 'Copy link'}
+            >
+              {copied ? <HiOutlineCheck className='text-xl' /> : <HiOutlineClipboardDocumentCheck className='text-xl text-gray-600 dark:text-gray-300' />}
+            </button>
+            <button
+              onClick={shareNative}
+              className='p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors'
+              title='Share course'
+            >
+              <HiOutlineShare className='text-xl text-gray-600 dark:text-gray-300' />
+            </button>
+            <Link
+              href={`/course/${courseId}/start`}
+              className='px-5 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity'
+            >
+              Start Learning
+            </Link>
+          </div>
         </div>
       </div>
 

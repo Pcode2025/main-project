@@ -5,6 +5,25 @@ import EditCourseBasicInfo from './EditCourseBasicInfo';
 import { supabase } from '@/configs/supabase';
 import Link from 'next/link';
 
+const DEFAULT_BANNERS = [
+  'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=800',
+  'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800',
+];
+
+function getDefaultBanner(courseId) {
+  if (!courseId) return DEFAULT_BANNERS[0];
+  let hash = 0;
+  for (let i = 0; i < courseId.length; i++) {
+    hash = ((hash << 5) - hash) + courseId.charCodeAt(i);
+    hash |= 0;
+  }
+  return DEFAULT_BANNERS[Math.abs(hash) % DEFAULT_BANNERS.length];
+}
+
 function CourseBasicInfo({ course, refreshData, edit = true }) {
   const [selectedFile, setSelectedFile] = useState();
   const [uploading, setUploading] = useState(false);
@@ -76,7 +95,7 @@ function CourseBasicInfo({ course, refreshData, edit = true }) {
             <div className="relative">
               {/* Plain img tag handles both blob: preview URLs and Supabase storage URLs */}
               <img
-                src={selectedFile || '/placeholder.png'}
+                src={selectedFile || getDefaultBanner(course?.courseId)}
                 className='w-full rounded-xl h-[250px] object-cover cursor-pointer'
                 alt="Course banner"
               />

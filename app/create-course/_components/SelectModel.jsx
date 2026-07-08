@@ -5,33 +5,6 @@ import { motion } from 'framer-motion'
 
 const MODELS = [
   {
-    id: 'meta-llama/llama-3.1-8b-instruct:free',
-    name: 'Llama 3.1 8B',
-    provider: 'Meta',
-    badge: 'Free',
-    badgeColor: 'bg-green-100 text-green-700',
-    description: 'Fast & free. Great for straightforward course outlines.',
-    icon: '🦙',
-  },
-  {
-    id: 'google/gemma-2-9b-it:free',
-    name: 'Gemma 2 9B',
-    provider: 'Google',
-    badge: 'Free',
-    badgeColor: 'bg-green-100 text-green-700',
-    description: 'Google\'s efficient open model. Reliable JSON output.',
-    icon: '💎',
-  },
-  {
-    id: 'mistralai/mistral-7b-instruct:free',
-    name: 'Mistral 7B',
-    provider: 'Mistral AI',
-    badge: 'Free',
-    badgeColor: 'bg-green-100 text-green-700',
-    description: 'Lightweight & fast. Good for quick course generation.',
-    icon: '🌊',
-  },
-  {
     id: 'openai/gpt-4o-mini',
     name: 'GPT-4o Mini',
     provider: 'OpenAI',
@@ -50,12 +23,12 @@ const MODELS = [
     icon: '🎋',
   },
   {
-    id: 'google/gemini-flash-1.5',
-    name: 'Gemini Flash 1.5',
+    id: 'google/gemini-2.0-flash-001',
+    name: 'Gemini 2.0 Flash',
     provider: 'Google',
-    badge: 'Fast',
-    badgeColor: 'bg-blue-100 text-blue-700',
-    description: 'Google\'s speedy model. Great for detailed courses.',
+    badge: 'Recommended',
+    badgeColor: 'bg-green-100 text-green-700',
+    description: 'Google\'s latest fast model. Great for detailed courses.',
     icon: '✨',
   },
   {
@@ -72,7 +45,7 @@ const MODELS = [
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',
     badge: 'Premium',
-    badgeColor: 'bg-purple-100 text-purple-700',
+    badgeColor: 'bg-amber-100 text-amber-700',
     description: 'Top-tier quality. Best for complex, in-depth courses.',
     icon: '🎼',
   },
@@ -81,7 +54,7 @@ const MODELS = [
     name: 'GPT-4o',
     provider: 'OpenAI',
     badge: 'Most Capable',
-    badgeColor: 'bg-purple-100 text-purple-700',
+    badgeColor: 'bg-amber-100 text-amber-700',
     description: 'OpenAI flagship. Exceptional depth and accuracy.',
     icon: '🧠',
   },
@@ -100,7 +73,7 @@ function SelectModel() {
         Choose an AI Model
       </h2>
       <p className='text-sm text-gray-500 dark:text-gray-400 mb-6'>
-        Select which OpenRouter model generates your course. Free models require no credits.
+        Select which AI model generates your course. Higher-tier models produce more detailed content.
       </p>
 
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
@@ -114,8 +87,8 @@ function SelectModel() {
               onClick={() => handleSelect(model.id)}
               className={`cursor-pointer rounded-xl border-2 p-4 transition-all duration-200
                 ${isSelected
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 shadow-md'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 bg-white dark:bg-gray-800'
+                  ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-md'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 bg-white dark:bg-gray-800'
                 }`}
             >
               <div className='flex items-start justify-between mb-2'>
@@ -132,8 +105,8 @@ function SelectModel() {
               </div>
               <p className='text-xs text-gray-600 dark:text-gray-300 leading-relaxed'>{model.description}</p>
               {isSelected && (
-                <div className='mt-3 flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400'>
-                  <div className='w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center'>
+                <div className='mt-3 flex items-center gap-1.5 text-primary'>
+                  <div className='w-4 h-4 rounded-full bg-primary flex items-center justify-center'>
                     <svg className='w-2.5 h-2.5 text-white' fill='currentColor' viewBox='0 0 20 20'>
                       <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
                     </svg>
