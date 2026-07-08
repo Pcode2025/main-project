@@ -7,7 +7,7 @@ import { useAuth } from '@/app/_context/AuthContext'
 import Link from 'next/link';
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { LightbulbIcon, SparklesIcon, Share2Icon, DollarSignIcon, ChevronRightIcon, BarChartIcon } from 'lucide-react';
+import { Lightbulb as LightbulbIcon, Sparkles as SparklesIcon, Share2 as Share2Icon, DollarSign as DollarSignIcon, ChevronRight as ChevronRightIcon, ChartBar as BarChartIcon } from 'lucide-react';
 import { HiMenuAlt2, HiX } from "react-icons/hi";
 import { useTheme } from 'next-themes';
 

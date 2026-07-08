@@ -11,7 +11,7 @@ import { UserCourseListContext } from '@/app/_context/UserCourseListContext';
 import { useAuth } from '@/app/_context/AuthContext';
 import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SunIcon, MoonIcon, BellIcon, UserIcon, LogOutIcon, GraduationCapIcon, ExternalLinkIcon } from 'lucide-react'
+import { Sun as SunIcon, Moon as MoonIcon, Bell as BellIcon, User as UserIcon, LogOut as LogOutIcon, GraduationCap as GraduationCapIcon, ExternalLink as ExternalLinkIcon } from 'lucide-react'
 
 function TopNavBar() {
     const { userCourseList } = useContext(UserCourseListContext);

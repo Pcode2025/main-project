@@ -5,7 +5,7 @@ import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/app/_context/AuthContext'
 import { useTheme } from 'next-themes'
-import { SunIcon, MoonIcon } from 'lucide-react'
+import { Sun as SunIcon, Moon as MoonIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function Header() {
