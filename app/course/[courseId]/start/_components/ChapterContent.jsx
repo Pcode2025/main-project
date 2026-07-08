@@ -1,17 +1,8 @@
 "use client"
 import React from 'react'
-import YouTube from 'react-youtube'
 import ReactMarkdown from 'react-markdown'
 
 function ChapterContent({ chapter, content }) {
-  const opts = {
-    width: '100%',
-    playerVars: {
-      autoplay: 0,
-      rel: 0,
-    },
-  };
-
   return (
     <div className='p-5 md:p-10'>
       <h2 className='font-medium text-2xl'>{chapter?.name}</h2>
@@ -20,11 +11,13 @@ function ChapterContent({ chapter, content }) {
       {content?.videoId && (
         <div className='flex justify-center my-6'>
           <div className='w-full max-w-2xl aspect-video rounded-lg overflow-hidden'>
-            <YouTube
-              videoId={content.videoId}
-              opts={opts}
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${content.videoId}`}
+              title={chapter?.name || 'Chapter video'}
               className='w-full h-full'
-              iframeClassName='w-full h-full'
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
             />
           </div>
         </div>
