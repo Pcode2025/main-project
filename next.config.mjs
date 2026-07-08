@@ -4,11 +4,6 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'glpbzfjkiszxthtpdyzx.supabase.co',
-                pathname: '/storage/v1/object/public/**',
-            },
-            {
-                protocol: 'https',
                 hostname: '*.supabase.co',
                 pathname: '/storage/v1/object/public/**',
             },
@@ -18,18 +13,14 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'firebasestorage.googleapis.com',
+                hostname: 'img.youtube.com',
             },
             {
                 protocol: 'https',
-                hostname: 'res.cloudinary.com',
+                hostname: 'images.pexels.com',
             },
         ],
     },
-    webpack: (config) => {
-        config.resolve.symlinks = false;
-        return config;
-    }
 };
 
 export default nextConfig;
