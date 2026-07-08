@@ -5,13 +5,15 @@ import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/app/_context/AuthContext'
 import { useTheme } from 'next-themes'
-import { Sun as SunIcon, Moon as MoonIcon, Chrome as Home } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Sun as SunIcon, Moon as MoonIcon, Chrome as Home, LogOut as LogOutIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function Header() {
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -19,6 +21,11 @@ function Header() {
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
+
+  const handleLogout = async () => {
+    await signOut()
+    router.push('/')
   }
 
   return (
@@ -67,6 +74,18 @@ function Header() {
               <Link href="/sign-in" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                 Sign in
               </Link>
+            )}
+
+            {user && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              >
+                <LogOutIcon size={16} />
+                <span className="hidden sm:inline">Logout</span>
+              </motion.button>
             )}
           </div>
         </div>
