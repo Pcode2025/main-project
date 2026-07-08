@@ -1,47 +1,37 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const OPENROUTER_BASE = 'https://openrouter.ai/api/v1/chat/completions';
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+const cleanJson = (text) =>
+  text.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '').trim();
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-const generationConfig = {
-  temperature: 1,
-  topP: 0.95,
-  topK: 64,
-  maxOutputTokens: 8192,
-  responseMimeType: "application/json",
-};
-
-export const GenerateCourseLayout_AI = {
-  sendMessage: (prompt) =>
-    model.startChat({
-      generationConfig,
-      history: [
+export const generateWithOpenRouter = async (prompt, model) => {
+  const response = await fetch(OPENROUTER_BASE, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : '',
+      'X-Title': 'AI Course Generator',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
         {
-          role: "user",
-          parts: [{ text: "Generate A Course Tutorial on Following Detail With field as Course Name, Description, Along with Chapter Name, about, Duration: Category: 'Programming', Topic: Python, Level:Basic, Duration:1 hours, NoOf Chapters:5 , in JSON format" }],
+          role: 'system',
+          content: 'You are a course creation assistant. Always respond with valid JSON only — no markdown, no code fences, no extra text.',
         },
-        {
-          role: "model",
-          parts: [{ text: '{"course":{"name":"Introduction to Python Programming","description":"A beginner-friendly Python course.","chapters":[{"name":"Introduction to Python","about":"History and features of Python.","duration":"15 minutes"},{"name":"Basic Syntax","about":"Variables, data types, operators.","duration":"25 minutes"}],"category":"Programming","topic":"Python","level":"Basic","duration":"1 hour","numberOfChapters":5}}' }],
-        },
+        { role: 'user', content: prompt },
       ],
-    }).sendMessage(prompt),
-};
+      temperature: 0.7,
+    }),
+  });
 
-export const GenerateChapterContent_AI = {
-  sendMessage: (prompt) =>
-    model.startChat({
-      generationConfig,
-      history: [
-        {
-          role: "user",
-          parts: [{ text: "Explain the concept in Detail on Topic: Python Basic, Chapter:Variables and Data Types, in JSON Format with list of array with field as title, explanation on give chapter in detail, Code Example(Code field in <precode> format) if applicable" }],
-        },
-        {
-          role: "model",
-          parts: [{ text: '[{"title":"Introduction to Variables","explanation":"Variables store data in Python.","codeExample":"<precode>name = \\"Alice\\"\\nprint(name)</precode>"}]' }],
-        },
-      ],
-    }).sendMessage(prompt),
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `OpenRouter error ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error('Empty response from OpenRouter');
+  return cleanJson(text);
 };

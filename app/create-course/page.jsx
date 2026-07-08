@@ -1,12 +1,13 @@
 "use client"
 import { Button } from '@/components/ui/button';
 import React, { useContext, useEffect, useState } from 'react'
-import { HiMiniSquares2X2, HiLightBulb, HiClipboardDocumentCheck } from "react-icons/hi2";
+import { HiMiniSquares2X2, HiLightBulb, HiClipboardDocumentCheck, HiSparkles } from "react-icons/hi2";
 import SelectCategory from './_components/SelectCategory';
 import TopicDescription from './_components/TopicDescription';
 import SelectOption from './_components/SelectOption';
+import SelectModel from './_components/SelectModel';
 import { UserInputContext } from '../_context/UserInputContext';
-import { GenerateCourseLayout_AI } from '@/configs/AiModel';
+import { generateWithOpenRouter } from '@/configs/AiModel';
 import LoadingDialog from './_components/LoadingDialog';
 import { supabase } from '@/configs/supabase';
 import uuid4 from 'uuid4';
@@ -17,36 +18,47 @@ function CreateCourse() {
   const StepperOptions = [
     { id: 1, name: 'Category', icon: <HiMiniSquares2X2 /> },
     { id: 2, name: 'Topic & Desc', icon: <HiLightBulb /> },
-    { id: 3, name: 'Options', icon: <HiClipboardDocumentCheck /> }
+    { id: 3, name: 'Options', icon: <HiClipboardDocumentCheck /> },
+    { id: 4, name: 'AI Model', icon: <HiSparkles /> },
   ]
+
   const { userCourseInput, setUserCourseInput } = useContext(UserInputContext);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { user } = useAuth();
   const [error, setError] = useState('');
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     console.log(userCourseInput);
   }, [userCourseInput])
 
   const checkStatus = () => {
-    if (userCourseInput?.length == 0) return true;
-    if (activeIndex == 0 && (userCourseInput?.category?.length == 0 || userCourseInput?.category == undefined)) return true;
-    if (activeIndex == 1 && (userCourseInput?.topic?.length == 0 || userCourseInput?.topic == undefined)) return true;
-    if (activeIndex == 2 && (userCourseInput?.level == undefined || userCourseInput?.duration == undefined || userCourseInput?.displayVideo == undefined || userCourseInput?.noOfChapter == undefined)) return true;
+    if (!userCourseInput || userCourseInput?.length == 0) return true;
+    if (activeIndex == 0 && !userCourseInput?.category) return true;
+    if (activeIndex == 1 && !userCourseInput?.topic) return true;
+    if (activeIndex == 2 && (
+      !userCourseInput?.level || !userCourseInput?.duration ||
+      !userCourseInput?.displayVideo || !userCourseInput?.noOfChapter
+    )) return true;
+    if (activeIndex == 3 && !userCourseInput?.selectedModel) return true;
     return false;
   }
 
   const GenerateCourseLayout = async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError('');
     try {
-      const BASIC_PROMPT = 'Generate A Course Tutorial on Following Detail With field as Course Name, Description, Along with Chapter Name, about, Duration: '
-      const USER_INPUT_PROMPT = 'Category: ' + userCourseInput?.category + ', Topic: ' + userCourseInput?.topic + ', Level:' + userCourseInput?.level + ', Duration:' + userCourseInput?.duration + ', NoOf Chapters:' + userCourseInput?.noOfChapter + ' , in JSON format'
-      const FINAL_PROMPT = BASIC_PROMPT + USER_INPUT_PROMPT;
-      const result = await GenerateCourseLayout_AI.sendMessage(FINAL_PROMPT);
-      const text = result.response?.text();
-      if (!text) throw new Error('Empty response from AI');
+      const prompt =
+        'Generate A Course Tutorial on Following Detail With field as Course Name, Description, Along with Chapter Name, about, Duration: ' +
+        'Category: ' + userCourseInput?.category +
+        ', Topic: ' + userCourseInput?.topic +
+        ', Level: ' + userCourseInput?.level +
+        ', Duration: ' + userCourseInput?.duration +
+        ', NoOf Chapters: ' + userCourseInput?.noOfChapter +
+        '. Return ONLY a JSON object with this exact structure: {"course":{"name":"...","description":"...","chapters":[{"name":"...","about":"...","duration":"..."}],"category":"...","topic":"...","level":"...","duration":"...","numberOfChapters":N}}';
+
+      const text = await generateWithOpenRouter(prompt, userCourseInput?.selectedModel);
       const courseLayout = JSON.parse(text);
       await SaveCourseLayoutInDb(courseLayout);
     } catch (e) {
@@ -59,7 +71,7 @@ function CreateCourse() {
 
   const SaveCourseLayoutInDb = async (courseLayout) => {
     const id = uuid4();
-    const { error } = await supabase.from('courseList').insert({
+    const { error: dbError } = await supabase.from('courseList').insert({
       courseId: id,
       name: userCourseInput?.topic,
       level: userCourseInput?.level,
@@ -68,11 +80,22 @@ function CreateCourse() {
       createdBy: user?.email,
       userName: user?.user_metadata?.full_name || user?.email,
       userProfileImage: user?.user_metadata?.avatar_url || null,
-      user_id: user?.id
+      user_id: user?.id,
+      aiModel: userCourseInput?.selectedModel,
     });
 
-    if (error) throw new Error('Failed to save course: ' + error.message);
+    if (dbError) throw new Error('Failed to save course: ' + dbError.message);
     router.replace('/create-course/' + id);
+  }
+
+  const renderStep = () => {
+    switch (activeIndex) {
+      case 0: return <SelectCategory />;
+      case 1: return <TopicDescription />;
+      case 2: return <SelectOption />;
+      case 3: return <SelectModel />;
+      default: return null;
+    }
   }
 
   return (
@@ -89,23 +112,37 @@ function CreateCourse() {
                 <h2 className='hidden md:block md:text-sm'>{item.name}</h2>
               </div>
               {index != StepperOptions?.length - 1 &&
-                <div className={`h-1 w-[50px] md:w-[100px] rounded-full lg:w-[170px] bg-gray-300 ${activeIndex - 1 >= index && 'bg-purple-500'}`}></div>}
+                <div className={`h-1 w-[50px] md:w-[100px] rounded-full lg:w-[120px] bg-gray-300 ${activeIndex - 1 >= index && 'bg-purple-500'}`}></div>}
             </div>
           ))}
         </div>
       </div>
 
       <div className='px-10 md:px-20 lg:px-44 mt-10'>
-        {activeIndex == 0 ? <SelectCategory /> : activeIndex == 1 ? <TopicDescription /> : <SelectOption />}
+        {renderStep()}
         {error && (
           <div className="mt-4 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
             {error}
           </div>
         )}
         <div className='flex justify-between mt-10'>
-          <Button disabled={activeIndex == 0} variant='outline' onClick={() => setActiveIndex(activeIndex - 1)}>Previous</Button>
-          {activeIndex < 2 && <Button disabled={checkStatus()} onClick={() => setActiveIndex(activeIndex + 1)}>Next</Button>}
-          {activeIndex == 2 && <Button disabled={checkStatus()} onClick={() => GenerateCourseLayout()}>Generate Course Layout</Button>}
+          <Button
+            disabled={activeIndex == 0}
+            variant='outline'
+            onClick={() => setActiveIndex(activeIndex - 1)}
+          >
+            Previous
+          </Button>
+          {activeIndex < 3 && (
+            <Button disabled={checkStatus()} onClick={() => setActiveIndex(activeIndex + 1)}>
+              Next
+            </Button>
+          )}
+          {activeIndex == 3 && (
+            <Button disabled={checkStatus()} onClick={GenerateCourseLayout}>
+              Generate Course Layout
+            </Button>
+          )}
         </div>
       </div>
       <LoadingDialog loading={loading} />
