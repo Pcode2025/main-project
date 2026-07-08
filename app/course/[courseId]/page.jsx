@@ -5,21 +5,23 @@ import CourseBasicInfo from '@/app/create-course/[courseId]/_components/CourseBa
 import CourseDetail from '@/app/create-course/[courseId]/_components/CourseDetail'
 import { supabase } from '@/configs/supabase'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-function Course({ params: paramsPromise }) {
-  const params = React.use(paramsPromise);
-  const [course, setCourse] = useState();
+function Course() {
+  const params = useParams();
+  const courseId = params?.courseId;
+  const [course, setCourse] = useState(null);
 
   useEffect(() => {
-    if (params) GetCourse();
-  }, [params])
+    if (courseId) GetCourse();
+  }, [courseId])
 
   const GetCourse = async () => {
     const { data, error } = await supabase
       .from('courseList')
       .select('*')
-      .eq('courseId', params?.courseId)
+      .eq('courseId', courseId)
       .maybeSingle();
 
     if (!error && data) setCourse(data);

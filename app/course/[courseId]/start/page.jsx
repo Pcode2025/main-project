@@ -1,27 +1,36 @@
 "use client"
 import { supabase } from '@/configs/supabase'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import ChapterListCard from './_components/ChapterListCard'
 import ChapterContent from './_components/ChapterContent'
 
-function CourseStart({ params: paramsPromise }) {
-  const params = React.use(paramsPromise);
-  const [course, setCourse] = useState();
-  const [selectedChapter, setSelectedChapter] = useState(0);
-  const [chapterContent, setChapterContent] = useState();
+function CourseStart() {
+  const params = useParams();
+  const courseId = params?.courseId;
+  const [course, setCourse] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [chapterContent, setChapterContent] = useState(null);
 
   useEffect(() => {
-    GetCourse();
-  }, [])
+    if (courseId) GetCourse();
+  }, [courseId])
 
   const GetCourse = async () => {
     const { data, error } = await supabase
       .from('courseList')
       .select('*')
-      .eq('courseId', params?.courseId)
+      .eq('courseId', courseId)
       .maybeSingle();
 
-    if (!error && data) setCourse(data);
+    if (!error && data) {
+      setCourse(data);
+      const firstChapter = data?.courseOutput?.course?.chapters?.[0];
+      if (firstChapter) {
+        setSelectedChapter(firstChapter);
+        GetSelectedChapterContent(0);
+      }
+    }
   }
 
   const GetSelectedChapterContent = async (chapterId) => {
@@ -29,7 +38,7 @@ function CourseStart({ params: paramsPromise }) {
       .from('chapters')
       .select('*')
       .eq('chapterId', chapterId)
-      .eq('courseId', params?.courseId)
+      .eq('courseId', courseId)
       .maybeSingle();
 
     if (!error && data) setChapterContent(data);
@@ -42,9 +51,9 @@ function CourseStart({ params: paramsPromise }) {
           {course?.courseOutput?.course?.name}
         </h2>
         <div>
-          {course?.courseOutput?.course?.chapters.map((chapter, index) => (
+          {course?.courseOutput?.course?.chapters?.map((chapter, index) => (
             <div key={index}
-              className={`cursor-pointer hover:bg-purple-50 ${selectedChapter?.name == chapter?.name && 'bg-purple-100'}`}
+              className={`cursor-pointer hover:bg-purple-50 ${selectedChapter?.name == chapter?.name ? 'bg-purple-100' : ''}`}
               onClick={() => { setSelectedChapter(chapter); GetSelectedChapterContent(index) }}
             >
               <ChapterListCard chapter={chapter} index={index} />

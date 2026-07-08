@@ -9,25 +9,26 @@ import ChapterList from './_components/ChapterList'
 import { Button } from '@/components/ui/button'
 import LoadingDialog from '../_components/LoadingDialog'
 import service from '@/configs/service'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
-function CourseLayout({ params: paramsPromise }) {
-  const params = React.use(paramsPromise);
+function CourseLayoutPage() {
+  const params = useParams();
+  const courseId = params?.courseId;
   const { user } = useAuth();
-  const [course, setCourse] = useState([]);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
-    if (params && user) GetCourse();
-  }, [params, user])
+    if (courseId && user) GetCourse();
+  }, [courseId, user])
 
   const GetCourse = async () => {
     const { data, error } = await supabase
       .from('courseList')
       .select('*')
-      .eq('courseId', params?.courseId)
+      .eq('courseId', courseId)
       .eq('user_id', user?.id)
       .maybeSingle();
 
@@ -121,4 +122,4 @@ function CourseLayout({ params: paramsPromise }) {
   )
 }
 
-export default CourseLayout
+export default CourseLayoutPage
