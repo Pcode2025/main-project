@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { generateWithOpenRouter } from '@/configs/AiModel'
+import { generateWithOpenRouter, parseJsonSafe } from '@/configs/AiModel'
 import { HiOutlineTrophy, HiOutlineXMark, HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi2"
 
 function QuizModal({ course, onClose }) {
@@ -36,7 +36,7 @@ Each question must have exactly 4 options. correctAnswer is the zero-based index
 
       const model = course?.aiModel || 'google/gemini-2.0-flash-001';
       const result = await generateWithOpenRouter(prompt, model);
-      const parsed = JSON.parse(result);
+      const parsed = parseJsonSafe(result);
 
       if (parsed.questions && parsed.questions.length > 0) {
         setQuestions(parsed.questions);

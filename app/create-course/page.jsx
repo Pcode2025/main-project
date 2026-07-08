@@ -7,7 +7,7 @@ import TopicDescription from './_components/TopicDescription';
 import SelectOption from './_components/SelectOption';
 import SelectModel from './_components/SelectModel';
 import { UserInputContext } from '../_context/UserInputContext';
-import { generateWithOpenRouter } from '@/configs/AiModel';
+import { generateWithOpenRouter, parseJsonSafe } from '@/configs/AiModel';
 import LoadingDialog from './_components/LoadingDialog';
 import { supabase } from '@/configs/supabase';
 import uuid4 from 'uuid4';
@@ -59,7 +59,7 @@ function CreateCourse() {
         '. Return ONLY a JSON object with this exact structure: {"course":{"name":"...","description":"...","chapters":[{"name":"...","about":"...","duration":"..."}],"category":"...","topic":"...","level":"...","duration":"...","numberOfChapters":N}}';
 
       const text = await generateWithOpenRouter(prompt, userCourseInput?.selectedModel);
-      const courseLayout = JSON.parse(text);
+      const courseLayout = parseJsonSafe(text);
       await SaveCourseLayoutInDb(courseLayout);
     } catch (e) {
       console.error('Course generation error:', e);

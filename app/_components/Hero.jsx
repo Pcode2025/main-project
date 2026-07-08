@@ -8,7 +8,6 @@ import HowItWorks from './HowItWorks'
 import CoreFeatures from './CoreFeatures'
 import LiveDemo from './LiveDemo'
 import Testimonials from './Testimonials'
-import Pricing from './Pricing'
 import BlogPreview from './BlogPreview'
 import Developers from './Developers'
 import Footer from './Footer'
@@ -571,7 +570,6 @@ function Hero() {
       <CoreFeatures />
       <LiveDemo />
       <Testimonials />
-      <Pricing />
       <BlogPreview />
       <Developers />
       <Footer />

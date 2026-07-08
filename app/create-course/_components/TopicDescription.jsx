@@ -1,7 +1,7 @@
 import { UserInputContext } from '@/app/_context/UserInputContext';
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { generateWithOpenRouter } from '@/configs/AiModel'
+import { generateWithOpenRouter, parseJsonSafe } from '@/configs/AiModel'
 import React, { useContext, useState } from 'react'
 import { HiOutlineSparkles } from "react-icons/hi2"
 
@@ -22,7 +22,7 @@ function TopicDescription() {
         try {
             const prompt = `Given the course topic "${userCourseInput.topic}"${userCourseInput?.category ? ` in the category "${userCourseInput.category}"` : ''}, generate a compelling course description in 2-3 sentences that explains what students will learn. Return ONLY a JSON object with this exact format: {"description": "your description here"}`
             const result = await generateWithOpenRouter(prompt, 'google/gemini-flash-1.5');
-            const parsed = JSON.parse(result);
+            const parsed = parseJsonSafe(result);
             if (parsed.description) {
                 setUserCourseInput(prev => ({ ...prev, description: parsed.description }));
             }

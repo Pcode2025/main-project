@@ -7,7 +7,7 @@ import { useAuth } from '@/app/_context/AuthContext'
 import Link from 'next/link';
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb as LightbulbIcon, Sparkles as SparklesIcon, Share2 as Share2Icon, DollarSign as DollarSignIcon, ChevronRight as ChevronRightIcon, ChartBar as BarChartIcon } from 'lucide-react';
+import { Lightbulb as LightbulbIcon, Sparkles as SparklesIcon, Share2 as Share2Icon, DollarSign as DollarSignIcon, ChartBar as BarChartIcon } from 'lucide-react';
 import { HiMenuAlt2, HiX } from "react-icons/hi";
 import { useTheme } from 'next-themes';
 
@@ -24,7 +24,7 @@ function AddCourse() {
         setMounted(true);
         // Animate the progress value
         const timer = setTimeout(() => {
-            setProgress((userCourseList?.length / 5) * 100);
+            setProgress(userCourseList?.length > 0 ? 100 : 0);
         }, 300);
 
         // Click outside handler for menu
@@ -177,7 +177,7 @@ function AddCourse() {
                                     className="h-2 bg-gray-200 dark:bg-gray-700 mb-2"
                                 />
                                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                                    {userCourseList?.length}/5 Courses Created
+                                    {userCourseList?.length} Courses Created
                                 </div>
                             </motion.div>
                         </div>
@@ -215,11 +215,11 @@ function AddCourse() {
                         className="mb-1 inline-block"
                     >
                         <motion.div
-                            className="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 
+                            className="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30
                                  text-indigo-700 dark:text-indigo-300 text-xs font-medium"
                             whileHover={{ scale: 1.05 }}
                         >
-                            {userCourseList?.length}/5 Courses Created
+                            {userCourseList?.length} Courses Created
                         </motion.div>
                     </motion.div>
 
@@ -234,52 +234,18 @@ function AddCourse() {
                     </motion.h2>
 
                     {/* Progress Bar Section */}
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="mt-3 mb-4"
                     >
                         <div className="flex justify-between items-center mb-1">
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                                 <BarChartIcon size={16} className="mr-1 text-indigo-500" />
-                                Course Creation Progress
+                                Courses Created
                             </span>
                             <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                                {userCourseList?.length}/5
+                                {userCourseList?.length} courses
                             </span>
-                        </div>
-                        
-                        <div className="relative w-full">
-                            <Progress 
-                                value={progress} 
-                                className="h-2.5 bg-gray-200 dark:bg-gray-700"
-                            />
-                            
-                            {/* Milestone markers */}
-                            <div className="flex justify-between mt-1 w-full px-0.5">
-                                <div className="w-1 h-1"></div>
-                                {[1, 2, 3, 4, 5].map((milestone) => (
-                                    <div 
-                                        key={milestone} 
-                                        className={`relative flex flex-col items-center ${milestone === 5 ? "right-0.5" : ""}`}
-                                    >
-                                        <div 
-                                            className={`w-2 h-2 rounded-full ${
-                                                userCourseList?.length >= milestone 
-                                                    ? "bg-indigo-500" 
-                                                    : "bg-gray-300 dark:bg-gray-600"
-                                            }`}
-                                        ></div>
-                                        {milestone === userCourseList?.length && (
-                                            <motion.div 
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                transition={{ delay: 0.5, type: "spring" }}
-                                                className="absolute -top-1 -left-1 w-4 h-4 rounded-full border-2 border-indigo-500 bg-transparent"
-                                            ></motion.div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     </motion.div>
 
@@ -323,19 +289,7 @@ function AddCourse() {
                     variants={itemVariants}
                     className="relative"
                 >
-                    {userCourseList?.length >= 5 && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="absolute -top-10 right-0 bg-amber-100 dark:bg-amber-900/30 
-                                 text-amber-700 dark:text-amber-300 text-xs px-3 py-1 rounded-lg"
-                        >
-                            Upgrade to create more
-                        </motion.div>
-                    )}
-
-                    <Link href={userCourseList?.length >= 5 ? 'https://www.tubeguruji.com/tubeguruji-pro' : '/create-course'}>
+                    <Link href='/create-course'>
                         <motion.div
                             whileHover={{
                                 scale: 1.05,
@@ -366,19 +320,6 @@ function AddCourse() {
                             </Button>
                         </motion.div>
                     </Link>
-                    
-                    {/* Course quota indicator */}
-                    {userCourseList?.length < 5 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.7 }}
-                            className="flex justify-center mt-3 text-xs text-gray-500 dark:text-gray-400"
-                        >
-                            <span>{5 - userCourseList?.length} free course{(5 - userCourseList?.length) !== 1 ? 's' : ''} remaining</span>
-                            <ChevronRightIcon size={14} className="ml-1" />
-                        </motion.div>
-                    )}
                 </motion.div>
             </motion.div>
         </div>

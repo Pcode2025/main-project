@@ -1,7 +1,7 @@
 "use client"
 import { supabase } from '@/configs/supabase'
 import { useAuth } from '@/app/_context/AuthContext'
-import { generateWithOpenRouter } from '@/configs/AiModel'
+import { generateWithOpenRouter, parseJsonSafe } from '@/configs/AiModel'
 import React, { useEffect, useState } from 'react'
 import CourseBasicInfo from './_components/CourseBasicInfo'
 import CourseDetail from './_components/CourseDetail'
@@ -70,7 +70,7 @@ function CourseLayoutPage() {
         }
 
         const text = await generateWithOpenRouter(prompt, model);
-        const content = JSON.parse(text);
+        const content = parseJsonSafe(text);
 
         const { error: insertError } = await supabase.from('chapters').insert({
           chapterId: index,

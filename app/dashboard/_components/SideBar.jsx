@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useContext, useState, useEffect, useRef } from 'react'
-import { HiOutlineHome, HiOutlineSquare3Stack3D, HiOutlineShieldCheck } from "react-icons/hi2";
+import { HiOutlineHome, HiOutlineSquare3Stack3D } from "react-icons/hi2";
 import { HiMenuAlt2, HiX } from "react-icons/hi";
 import { UserCourseListContext } from '@/app/_context/UserCourseListContext';
 import { useAuth } from '@/app/_context/AuthContext';
@@ -53,7 +53,6 @@ function TopNavBar() {
     const Menu = [
         { id: 1, name: 'Home', icon: <HiOutlineHome className="text-indigo-500" size={20} />, path: '/dashboard' },
         { id: 2, name: 'Explore', icon: <HiOutlineSquare3Stack3D className="text-indigo-500" size={20} />, path: '/dashboard/explore' },
-        { id: 3, name: 'Upgrade', icon: <HiOutlineShieldCheck className="text-indigo-500" size={20} />, path: '/dashboard/upgrade' }
     ]
 
     const handleLogout = async () => {
@@ -61,7 +60,7 @@ function TopNavBar() {
         router.push('/');
     }
 
-    const courseProgress = ((userCourseList?.length || 0) / 5) * 100;
+    const courseProgress = 100;
 
     const dropdownVariants = {
         hidden: { opacity: 0, y: -20, transition: { duration: 0.2 } },
@@ -139,7 +138,7 @@ function TopNavBar() {
                                                         </div>
                                                         <div className="ml-3 flex-1">
                                                             <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Course Progress</h4>
-                                                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{userCourseList?.length || 0}/5 courses ({Math.round(courseProgress)}%)</p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{userCourseList?.length || 0} courses created</p>
                                                             <div className="mt-2">
                                                                 <Progress value={courseProgress} className="h-2 bg-gray-200 dark:bg-gray-700" />
                                                             </div>
@@ -212,11 +211,10 @@ function TopNavBar() {
 
                             <motion.div variants={itemVariants} className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Course Progress</span>
-                                    <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{userCourseList?.length || 0}/5</span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Courses Created</span>
+                                    <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{userCourseList?.length || 0}</span>
                                 </div>
-                                <Progress value={courseProgress} className="h-2 bg-gray-200 dark:bg-gray-700 mb-2" />
-                                <div className="text-xs text-gray-500 dark:text-gray-400">{5 - (userCourseList?.length || 0)} more courses until upgrade required</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">Unlimited course creation</div>
                             </motion.div>
 
                             <nav className="mb-6">
@@ -300,10 +298,9 @@ function TopNavBar() {
                                                 <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Learning Progress</label>
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Courses Created</span>
-                                                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{userCourseList?.length || 0}/5</span>
+                                                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{userCourseList?.length || 0}</span>
                                                 </div>
-                                                <Progress value={courseProgress} className="h-3 bg-gray-200 dark:bg-gray-700 mb-2" />
-                                                <div className="text-xs text-gray-600 dark:text-gray-400 text-center">{Math.round(courseProgress)}% Complete</div>
+                                                <div className="text-xs text-gray-600 dark:text-gray-400 text-center">Unlimited plan</div>
                                             </div>
                                         </div>
                                     ) : (
