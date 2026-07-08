@@ -3,40 +3,39 @@ import Header from '@/app/_components/Header'
 import ChapterList from '@/app/create-course/[courseId]/_components/ChapterList'
 import CourseBasicInfo from '@/app/create-course/[courseId]/_components/CourseBasicInfo'
 import CourseDetail from '@/app/create-course/[courseId]/_components/CourseDetail'
-import { db } from '@/configs/db'
-import { CourseList } from '@/configs/schema'
-import { eq } from 'drizzle-orm'
+import { supabase } from '@/configs/supabase'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
-function Course({params}) {
-    const [course,setCourse]=useState();
-    useEffect(()=>{
-        params&&GetCourse();
-    },[params])
+function Course({ params }) {
+  const [course, setCourse] = useState();
 
-    const GetCourse=async()=>{
-        const result=await db.select().from(CourseList)
-        .where(eq(CourseList?.courseId,params?.courseId))
+  useEffect(() => {
+    if (params) GetCourse();
+  }, [params])
 
-        setCourse(result[0]);
-        console.log(result);
-    }
+  const GetCourse = async () => {
+    const { data, error } = await supabase
+      .from('courseList')
+      .select('*')
+      .eq('courseId', params?.courseId)
+      .maybeSingle();
+
+    if (!error && data) setCourse(data);
+  }
 
   return (
     <div>
-        <Header/>
-        <div className='px-10 p-10 md:px-20 lg:px-44'>
+      <Header />
+      <div className='px-10 p-10 md:px-20 lg:px-44'>
         <CourseBasicInfo course={course} edit={false} />
-
         <CourseDetail course={course} />
-
-        <ChapterList course={course}  edit={false}/>
-        </div>
-        <h2 className='text-sm text-gray-400 text-center mb-10'>This course created on 
-        <Link href={'https://www.mydesignnexus.in'}>
-         <br /> www.mydesignnexus.in
-        </Link></h2>
+        <ChapterList course={course} edit={false} />
+      </div>
+      <h2 className='text-sm text-gray-400 text-center mb-10'>
+        This course created on
+        <Link href={'https://www.mydesignnexus.in'}><br /> www.mydesignnexus.in</Link>
+      </h2>
     </div>
   )
 }

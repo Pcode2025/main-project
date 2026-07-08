@@ -3,7 +3,7 @@
 import { UserCourseListContext } from '@/app/_context/UserCourseListContext';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useUser } from '@clerk/nextjs'
+import { useAuth } from '@/app/_context/AuthContext'
 import Link from 'next/link';
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,7 +12,7 @@ import { HiMenuAlt2, HiX } from "react-icons/hi";
 import { useTheme } from 'next-themes';
 
 function AddCourse() {
-    const { user } = useUser();
+    const { user } = useAuth();
     const { userCourseList, setUserCourseList } = useContext(UserCourseListContext);
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
@@ -141,10 +141,10 @@ function AddCourse() {
                                     className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
                                 >
                                     <div className="font-medium text-gray-900 dark:text-gray-100">
-                                        {user.fullName || 'User'}
+                                        {user?.user_metadata?.full_name || 'User'}
                                     </div>
                                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                                        {user.primaryEmailAddress?.emailAddress}
+                                        {user?.email}
                                     </div>
                                 </motion.div>
                             )}
@@ -229,7 +229,7 @@ function AddCourse() {
                     >
                         Hello,{" "}
                         <span className='font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600'>
-                            {user?.fullName || 'Creator'}
+                            {user?.fullName || user?.user_metadata?.full_name || 'Creator'}
                         </span>
                     </motion.h2>
 

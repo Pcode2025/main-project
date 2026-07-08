@@ -11,9 +11,7 @@ import {
     HiOutlineShieldCheck
 } from "react-icons/hi2";
 import DropdownOption from './DropdownOption';
-import { db } from '@/configs/db';
-import { CourseList } from '@/configs/schema';
-import { eq } from 'drizzle-orm';
+import { supabase } from '@/configs/supabase';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -47,11 +45,12 @@ function CourseCard({ course, refreshData, displayUser = false }) {
     }, [course?.id]);
 
     const handleOnDelete = async () => {
-        const resp = await db.delete(CourseList)
-            .where(eq(CourseList.id, course?.id))
-            .returning({ id: CourseList?.id })
+        const { error } = await supabase
+            .from('courseList')
+            .delete()
+            .eq('id', course?.id);
 
-        if (resp) {
+        if (!error) {
             refreshData()
         }
     }
