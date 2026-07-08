@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react'
 import ChapterListCard from './_components/ChapterListCard'
 import ChapterContent from './_components/ChapterContent'
 
-function CourseStart({ params }) {
+function CourseStart({ params: paramsPromise }) {
+  const params = React.use(paramsPromise);
   const [course, setCourse] = useState();
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [chapterContent, setChapterContent] = useState();

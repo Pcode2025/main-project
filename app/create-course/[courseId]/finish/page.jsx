@@ -6,7 +6,8 @@ import CourseBasicInfo from '../_components/CourseBasicInfo';
 import { useRouter } from 'next/navigation';
 import { HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
 
-function FinishScreen({ params }) {
+function FinishScreen({ params: paramsPromise }) {
+  const params = React.use(paramsPromise);
   const { user } = useAuth();
   const [course, setCourse] = useState([]);
   const router = useRouter();

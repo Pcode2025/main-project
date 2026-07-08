@@ -7,7 +7,8 @@ import { supabase } from '@/configs/supabase'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
-function Course({ params }) {
+function Course({ params: paramsPromise }) {
+  const params = React.use(paramsPromise);
   const [course, setCourse] = useState();
 
   useEffect(() => {

@@ -11,7 +11,8 @@ import LoadingDialog from '../_components/LoadingDialog'
 import service from '@/configs/service'
 import { useRouter } from 'next/navigation'
 
-function CourseLayout({ params }) {
+function CourseLayout({ params: paramsPromise }) {
+  const params = React.use(paramsPromise);
   const { user } = useAuth();
   const [course, setCourse] = useState([]);
   const [loading, setLoading] = useState(false);
