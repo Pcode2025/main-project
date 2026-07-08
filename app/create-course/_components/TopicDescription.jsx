@@ -20,9 +20,8 @@ function TopicDescription() {
         if (!userCourseInput?.topic) return;
         setGenerating(true);
         try {
-            const prompt = `Given the course topic "${userCourseInput.topic}"${userCourseInput?.category ? ` in the category "${userCourseInput.category}"` : ''}, generate a compelling course description in 2-3 sentences that explains what students will learn. Return ONLY a JSON object: {"description": "..."}`
-            const model = userCourseInput?.selectedModel || 'google/gemini-2.0-flash-001';
-            const result = await generateWithOpenRouter(prompt, model);
+            const prompt = `Given the course topic "${userCourseInput.topic}"${userCourseInput?.category ? ` in the category "${userCourseInput.category}"` : ''}, generate a compelling course description in 2-3 sentences that explains what students will learn. Return ONLY a JSON object with this exact format: {"description": "your description here"}`
+            const result = await generateWithOpenRouter(prompt, 'google/gemini-flash-1.5');
             const parsed = JSON.parse(result);
             if (parsed.description) {
                 setUserCourseInput(prev => ({ ...prev, description: parsed.description }));
